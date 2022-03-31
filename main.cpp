@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+
 std::vector<char> make_hex(int a,int fl)
 {
     std::vector<char> tmp;
@@ -28,13 +29,13 @@ std::vector<char> make_hex(int a,int fl)
 void make_waw(int channels,int rate,int size_data, const std::string& file_data)
 {
 
-    std::ofstream out("../output.waw",std::ifstream::binary);
+    std::ofstream out("../output.wav",std::ifstream::binary);
     std::vector<char> m_out;
     std::string tmp;
     std::vector<char> tmp_vec;
     tmp="RIFF";
     for(int i=0;i<tmp.size();i++) { m_out.push_back(tmp[i]);}
-    tmp_vec = make_hex(size_data+44,0);
+    tmp_vec = make_hex(120000+44,0);
     for(int i=0;i<4;i++) {if(i<tmp_vec.size()) { m_out.push_back(tmp_vec[i]); }
         else{m_out.push_back(0);}}
     tmp="WAVEfmt ";
@@ -53,7 +54,7 @@ void make_waw(int channels,int rate,int size_data, const std::string& file_data)
     m_out.push_back(16);m_out.push_back(0);
     tmp="data";
     for(char &i : tmp) { m_out.push_back(i);}
-    tmp_vec = make_hex(size_data,1);
+    tmp_vec = make_hex(120000,1);
     for(int i=0;i<4;i++) {if(i<tmp_vec.size()) { m_out.push_back(tmp_vec[i]); }
         else{m_out.push_back(0);}}
     for(int i=0;i<m_out.size();i++)
@@ -63,6 +64,7 @@ void make_waw(int channels,int rate,int size_data, const std::string& file_data)
     {
         char a;
         in>>std::hex>>a;
+
         out<<std::hex<<a;
     }
 }
@@ -123,7 +125,10 @@ int main() {
             speex_bits_read_from(&dec_bits,in_b,b+c);
             speex_decode_int(dec_state, &dec_bits,out);
             speex_bits_reset(&dec_bits);
-            for(int i=0;i<t.size()*8;i++) { out_f << std::hex << (int) out[i] << " "; s++;}
+            for(int i=0;i<(b+c)*8;i++)
+            {
+                out_f <<  out[i] << " ";
+                s++;}
             t.clear();
         }
       if(name[name.size()-1]=='t'){
@@ -149,7 +154,7 @@ int main() {
         speex_bits_read_from(&dec_bits,in_b,b+c);
         speex_decode_int(dec_state, &dec_bits,out);
         speex_bits_reset(&dec_bits);
-          for(int i=0;i<t.size()*8;i++) { out_f << std::hex << (int) out[i] << " "; s++;}
+        for(int i=0;i<t.size()*8;i++) { out_f << std::hex << (int) out[i] << " "; s++;}
           t.clear();
       }
     }

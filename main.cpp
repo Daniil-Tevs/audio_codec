@@ -6,73 +6,44 @@
 #include <string>
 #include <fstream>
 
-std::vector<char> make_hex(int a,int fl)
-{
-    std::vector<char> tmp;
-    while(a>0)
-    {
-        tmp.push_back(a%256);
-        a/=256;
-    }
-    char b;
-    if(fl==1)
-    {
-        for (int i = 0; i < tmp.size() / 2; i++) {
-            b = tmp[i];
-            tmp[i] = tmp[tmp.size() - i - 1];
-            tmp[tmp.size() - i - 1] = b;
-        }
-    }
-    return tmp;
-}
-
 void make_header_wav(const std::string& output_wav,int channels,int rate)//без размера данных и файла
 {
     std::ofstream out(output_wav,std::ios::binary);
-    std::vector<char> m_out;
-    std::string tmp;
-    std::vector<char> tmp_vec;
-    tmp="RIFF";
-    for(int i=0;i<tmp.size();i++) { m_out.push_back(tmp[i]);}
-    tmp_vec = make_hex(33696+44,0);
-    for(int i=0;i<4;i++) {if(i<tmp_vec.size()) { m_out.push_back(tmp_vec[i]); }
-        else{m_out.push_back(0);}}
-    tmp="WAVEfmt ";
-    for(char &i : tmp) { m_out.push_back(i);}
-    m_out.push_back(16);
-    for(int i=0;i<3;i++) { m_out.push_back(0);}
-    m_out.push_back(1);m_out.push_back(0);;
-    m_out.push_back(channels);m_out.push_back(0);
-    tmp_vec = make_hex(rate,1);
-    for(int i=0;i<4;i++) {if(i<tmp_vec.size()) { m_out.push_back(tmp_vec[i]);}
-    else{m_out.push_back(0);}}
-    tmp_vec = make_hex(rate*channels*2,1);
-    for(int i=0;i<4;i++) {if(i<tmp_vec.size()) { m_out.push_back(tmp_vec[i]); }
-        else{m_out.push_back(0);}}
-    m_out.push_back(2*channels);m_out.push_back(0);
-    m_out.push_back(16);m_out.push_back(0);
-    tmp="data";
-    for(char &i : tmp) { m_out.push_back(i);}
-    tmp_vec = make_hex(12000,1);
-    for(int i=0;i<4;i++) {if(i<tmp_vec.size()) { m_out.push_back(tmp_vec[i]); }
-        else{m_out.push_back(0);}}
-    for(int i=0;i<m_out.size();i++)
-        out<<m_out[i];
+    int tmp_i;
+    short tmp_s;
+    out.write("RIFF",4);
+    out.write("0",4);
+    out.write("WAVEfmt ",8);
+    tmp_i=16;
+    out.write(reinterpret_cast<const char *>(&tmp_i), sizeof(tmp_i) );
+    tmp_s=1;
+    out.write(reinterpret_cast<const char *>(&tmp_s), sizeof(tmp_s) );
+    tmp_s=channels;
+    out.write(reinterpret_cast<const char *>(&tmp_s), sizeof(tmp_s) );
+    tmp_i=rate;
+    out.write(reinterpret_cast<const char *>(&tmp_i), sizeof(tmp_i) );
+    tmp_i=rate*channels*2;
+    out.write(reinterpret_cast<const char *>(&tmp_i), sizeof(tmp_i) );
+    tmp_s=2*channels;
+    out.write(reinterpret_cast<const char *>(&tmp_s), sizeof(tmp_s) );
+    tmp_s=16;
+    out.write(reinterpret_cast<const char *>(&tmp_s), sizeof(tmp_s) );
+    out.write("data",4);
+    out.write("0",4);
 }
-std::string extension(const std::string& name)
-{
-    std::string tmp;
-    int fl=0;
-    for(int i=0;i<name.size()-1;i++)
-        if((name[i]=='.' && name[i+1]!='.' && name[i+1]!='/') || (fl==1)) { tmp += name[i + 1]; fl=1;}
-    return tmp;
-}
+//std::string extension(const std::string& name)
+//{
+//    std::string tmp;
+//    int fl=0;
+//    for(int i=0;i<name.size()-1;i++)
+//        if((name[i]=='.' && name[i+1]!='.' && name[i+1]!='/') || (fl==1)) { tmp += name[i + 1]; fl=1;}
+//    return tmp;
+//}
 
 int main() {
     std::string name_input ="../Hello.enc", name_out = "../output.wav",tmp_file = "../output.txt";
     setlocale(LC_ALL,"Rus");
     std::ifstream inb(name_input,std::ios::binary);
-    std::string extension_file = extension(name_input);
     make_header_wav(name_out,1,8000);
     std::ofstream out_f(name_out,std::ios::app | std::ios::binary);
 
@@ -137,7 +108,7 @@ int main() {
             s+=320;
         }
     }
-    else if(extension_file == "dat") {
+    else if(name_input.find(".dat")) {
         while(!inb.eof()) {
             int b, c;
             inb >> std::dec >> byte_t;

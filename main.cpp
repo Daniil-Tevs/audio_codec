@@ -40,7 +40,7 @@ void make_header_wav(const std::string& output_wav,int channels,int rate)//бе�
 //}
 
 int main() {
-    std::string name_input ="../Hello.dat", name_out = "../output.wav";
+    std::string name_input ="../Lem2400.enc", name_out = "../output.wav";
     setlocale(LC_ALL,"Rus");
     std::ifstream inb(name_input,std::ios::binary);
     make_header_wav(name_out,1,8000);

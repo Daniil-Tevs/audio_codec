@@ -50,10 +50,10 @@ public:
 //        if(from.find(".wav")!=-1)
         std::ifstream in(from, std::ios::binary);
         in.read(reinterpret_cast<char *>(&m_header), sizeof(wav_header));
-        char tmp;
+        spx_int16_t tmp;
         for(int i=0;i<m_header.SizeData;i++)
         {
-            in>>std::hex>>tmp;
+            in.read(reinterpret_cast<char *>(&tmp), sizeof(spx_int16_t));
             m_data.push_back(tmp);
         }
     };
@@ -62,7 +62,7 @@ public:
         std::ofstream out(where,std::ios::binary);
         out.write(reinterpret_cast<const char *>(&m_header), sizeof (m_header));
         for(int i=0;i<m_data.size();i++)
-            out.write(reinterpret_cast<const char *>(&m_data[i]), 1);
+            out.write(reinterpret_cast<const char *>(&m_data[i]), sizeof (spx_int16_t));
     }
     void decode(std::string from)
     {
@@ -136,8 +136,8 @@ public:
             std::cout<<"Error, program don't work with this extension file";
         speex_bits_destroy(&dec_bits);
         speex_decoder_destroy(dec_state);
-        m_header.SizeFile = m_data.size()+44;
-        m_header.SizeData = m_data.size();
+        m_header.SizeFile = m_data.size()*sizeof (spx_int16_t )+44;
+        m_header.SizeData = m_data.size()*sizeof (spx_int16_t);
     }
     std::vector<char> encode()
     {

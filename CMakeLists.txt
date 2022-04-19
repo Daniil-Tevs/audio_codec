@@ -4,6 +4,7 @@ project(audio_codec)
 
 set(CMAKE_CXX_STANDARD 14)
 include_directories("inc/")
+include_directories("src/")
 include_directories("speex-1.2.0/")
 include_directories("speex-1.2.0/include/speex/")
 include_directories("speex-1.2.0/libspeex/")
@@ -52,5 +53,5 @@ add_library(MyLibrary STATIC speex-1.2.0/include/speex/speex.h
         speex-1.2.0/libspeex/vq.c
         speex-1.2.0/libspeex/window.c)
 add_executable(audio_codec main.cpp
-        inc/wav.h)
+        inc/wav.h src/wav.cpp inc/errors.h)
 target_link_libraries(audio_codec MyLibrary)

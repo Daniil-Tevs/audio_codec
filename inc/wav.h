@@ -6,6 +6,7 @@
 #include "speex_types.h"
 class wav{
 public:
+
     wav(int channels,int rate);
     wav(std::string from);
     wav(const wav& sound);
